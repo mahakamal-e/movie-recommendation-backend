@@ -1,15 +1,25 @@
-from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from movies.views import MovieViewSet, GenreViewSet, FavoriteViewSet
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from django.contrib import admin
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 
-router = DefaultRouter()
-router.register(r'movies', MovieViewSet)
-router.register(r'genres', GenreViewSet)
-router.register(r'favorites', FavoriteViewSet)
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Movie Recommendation API",
+      default_version='v1',
+      description="Backend for movie recommendation app",
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path("api/", include("users.urls")),
+    path("api/docs/", schema_view.with_ui("swagger", cache_timeout=0), name="swagger-ui"),
 ]

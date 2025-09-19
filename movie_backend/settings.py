@@ -43,8 +43,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'movies',
+    'users',
     'drf_yasg',
 ]
+
+AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'users.middleware.JWTAuthMiddleware',
 ]
 
 ROOT_URLCONF = 'movie_backend.urls'
@@ -135,9 +139,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    ),
 }
 
 # Redis cache
@@ -150,3 +157,17 @@ CACHES = {
         }
     }
 }
+# Swagger settings
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {  # Name of the authentication method
+            'type': 'apiKey',
+            'name': 'Authorization',  # The header that Django REST Framework will read
+            'in': 'header',
+            'description': '**Enter your bearer token in the format: Bearer &lt;token&gt;**'
+
+        }
+    },
+    'USE_SESSION_AUTH': False,  # Use JWT only, without session authentication
+}
+

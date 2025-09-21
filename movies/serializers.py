@@ -7,10 +7,19 @@ class MovieSerializer(serializers.ModelSerializer):
         model = Movie
         fields = "__all__"
 
+# Serializer للـ response
 class UserFavoriteSerializer(serializers.ModelSerializer):
     movie = MovieSerializer(read_only=True)
-    movie_id = serializers.UUIDField(write_only=True)
+    user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = UserFavorite
-        fields = ["id", "user", "movie", "movie_id"]
+        fields = ["id", "user", "movie"]
+
+
+class UserFavoriteCreateSerializer(serializers.ModelSerializer):
+    movie_id = serializers.IntegerField()  # حقل واحد للكتابة فقط
+
+    class Meta:
+        model = UserFavorite
+        fields = ["movie_id"]

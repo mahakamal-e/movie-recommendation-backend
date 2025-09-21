@@ -1,21 +1,16 @@
 from rest_framework import serializers
-from .models import Movie, Genre, Favorite
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
-        fields = '__all__'
+from .models import Movie, UserFavorite
 
 
 class MovieSerializer(serializers.ModelSerializer):
-    genres = GenreSerializer(many=True, read_only=True)
     class Meta:
         model = Movie
-        fields = '__all__'
+        fields = "__all__"
 
+class UserFavoriteSerializer(serializers.ModelSerializer):
+    movie = MovieSerializer(read_only=True)
+    movie_id = serializers.UUIDField(write_only=True)
 
-class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Favorite
-        fields = '__all__'
+        model = UserFavorite
+        fields = ["id", "user", "movie", "movie_id"]

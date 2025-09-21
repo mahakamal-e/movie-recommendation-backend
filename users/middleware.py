@@ -17,6 +17,7 @@ class JWTAuthMiddleware:
             "/api/auth/token",
             "/api/auth/token/refresh",
             "/api/docs",
+            "/api/movies/",
         ]
 
     def __call__(self, request):

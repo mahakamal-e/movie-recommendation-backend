@@ -19,6 +19,9 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+TMDB_API_KEY = "2ca18e3c0daa596f2ba1c5a94c9b9fa3"
+TMDB_BASE_URL = "https://api.themoviedb.org/3"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 

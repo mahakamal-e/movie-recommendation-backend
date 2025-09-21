@@ -27,20 +27,23 @@ class TrendingMoviesView(APIView):
     """
     GET /movies/trending/
 
-    Retrieve the list of trending movies.
+    Retrieve the list of trending movies with pagination.
     Uses Redis cache to improve performance:
     - If cached data is available, return it.
     - Otherwise, fetch from TMDb, save to DB, and cache the result.
     """
 
     def get(self, request):
-        movies = cache.get("trending_movies")
-        if not movies:
+        movies_objs = cache.get("trending_movies_objs")
+        if not movies_objs:
             movies_objs = fetch_and_save_trending_movies()
-            serializer = MovieSerializer(movies_objs, many=True)
-            movies = serializer.data
-            cache.set("trending_movies", movies, timeout=3600)  # Cache for 1 hour
-        return Response(movies)
+            cache.set("trending_movies_objs", movies_objs, timeout=3600)  # cache objects
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        page = paginator.paginate_queryset(movies_objs, request)
+        serializer = MovieSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class UserFavoritesView(APIView):
@@ -83,11 +86,7 @@ class RecommendedMoviesView(APIView):
     """
     GET /movies/recommended/
 
-    Return a list of recommended movies for the authenticated user.
-
-    Recommendations are based on genres from the user's favorites:
-    - Movies sharing similar genres are ranked higher.
-    - If no favorites exist, return a default set of movies.
+    Return a paginated list of recommended movies for the authenticated user.
     """
 
     permission_classes = [IsAuthenticated]
@@ -95,22 +94,17 @@ class RecommendedMoviesView(APIView):
     def get(self, request):
         user = request.user
         cache_key = f"recommended_movies_user_{user.id}"
+        movies_objs = cache.get(cache_key)
 
-        movies = cache.get(cache_key)
-        if movies is None:
-            # Retrieve user's favorite movies
+        if movies_objs is None:
             favorite_movies = Movie.objects.filter(userfavorite__user=user)
-
-            # Collect all genres from favorites
             favorite_genres = set()
             for movie in favorite_movies:
                 favorite_genres.update(movie.genres or [])
 
-            # Filter and rank movies by shared genres
             all_movies = Movie.objects.all()
             recommended = [
-                m
-                for m in all_movies
+                m for m in all_movies
                 if not favorite_genres or set(m.genres or []) & favorite_genres
             ]
             recommended.sort(
@@ -118,14 +112,17 @@ class RecommendedMoviesView(APIView):
                 reverse=True,
             )
 
-            # Fallback if no recommendations
             if not recommended:
                 recommended = Movie.objects.all()[:20]
 
-            movies = MovieSerializer(recommended[:20], many=True).data
-            cache.set(cache_key, movies, timeout=3600)
+            movies_objs = recommended
+            cache.set(cache_key, movies_objs, timeout=3600)
 
-        return Response(movies)
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        page = paginator.paginate_queryset(movies_objs, request)
+        serializer = MovieSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class SearchMoviesView(APIView):

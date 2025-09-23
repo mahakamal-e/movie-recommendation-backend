@@ -72,8 +72,27 @@ TMDB_API_KEY=<your_tmdb_api_key>
 Note: If you don’t create a .env file, Docker Compose will use the default environment variables defined in the docker-compose.yml.
 
 ### 3. Build and start Docker containers
-```docker compose up --build ```
-This will: Build the Django app container Start PostgreSQL and Redis Run Django migrations automatically Expose the API at http://localhost:8000
+```docker compose up --build -d```
+-d runs containers in detached mode (background)
+
+This starts Django, PostgreSQL, and Redis
+
+To see logs directly in the terminal instead of running in the background, use:
+
+```docker compose up```
+
+### 4. Run Migrations
+```docker compose exec web python manage.py migrate ```
+
+
+### 5. Create a Superuser
+```docker compose exec web python manage.py createsuperuser ```
+
+### 🚀 Access the Application
+
+- **API:** [http://localhost:8000](http://localhost:8000)  
+- **Swagger Documentation:** [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/) 
+for interactive API docs.
 
 ## 🗄 Database & Redis
 PostgreSQL is available at db:5432 in Docker. Redis caching is available at redis:6379 for trending and recommended movies.
@@ -98,10 +117,6 @@ PostgreSQL is available at db:5432 in Docker. Redis caching is available at redi
 | `/api/movies/search/` | GET | Search movies by title and/or genre |
 | `/api/movies/favorites/` | GET/POST | List/Add user’s favorite movies |
 | `/api/movies/favorites/remove/<movie_id>/` | DELETE | Remove a movie from favorites |
-
-
-## Swagger Documentation
-Visit [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/) for interactive API docs.
 
 ## Live Project & Demo
 - Live project: [https://your-live-project-link.com](https://your-live-project-link.com)

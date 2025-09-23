@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from rest_framework import status
 from .models import Movie, UserFavorite
 from .serializers import (
     MovieSerializer,
@@ -21,6 +21,7 @@ from .serializers import (
     UserFavoriteCreateSerializer,
 )
 from .utils import fetch_and_save_trending_movies
+import random
 
 
 class TrendingMoviesView(APIView):
@@ -102,20 +103,27 @@ class RecommendedMoviesView(APIView):
             for movie in favorite_movies:
                 favorite_genres.update(movie.genres or [])
 
-            all_movies = Movie.objects.all()
-            recommended = [
-                m for m in all_movies
-                if not favorite_genres or set(m.genres or []) & favorite_genres
-            ]
-            recommended.sort(
-                key=lambda m: len(set(m.genres or []) & favorite_genres),
-                reverse=True,
-            )
+            if favorite_genres:  
+                # عنده مفضلات → رشحله بناءً على الجانرا
+                all_movies = Movie.objects.all()
+                recommended = [
+                    m for m in all_movies
+                    if set(m.genres or []) & favorite_genres
+                ]
+                recommended.sort(
+                    key=lambda m: len(set(m.genres or []) & favorite_genres),
+                    reverse=True,
+                )
+                movies_objs = recommended
+            else:
+                # مفيش مفضلات → هات تريندينج وخد ٥ عشوائي
+                trending = cache.get("trending_movies_objs")
+                if not trending:
+                    trending = fetch_and_save_trending_movies()
+                    cache.set("trending_movies_objs", trending, timeout=3600)
 
-            if not recommended:
-                recommended = Movie.objects.all()[:20]
+                movies_objs = random.sample(trending, min(5, len(trending)))
 
-            movies_objs = recommended
             cache.set(cache_key, movies_objs, timeout=3600)
 
         paginator = PageNumberPagination()
@@ -176,3 +184,28 @@ class SearchMoviesView(APIView):
 
         serializer = MovieSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+
+class RemoveFavoriteMovieView(APIView):
+    """
+    DELETE /movies/favorites/<int:movie_id>/
+
+    Remove a movie from the user's favorites using its TMDb ID.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, movie_id):
+        user = request.user
+        try:
+            favorite = UserFavorite.objects.get(user=user, movie__tmdb_id=movie_id)
+            favorite.delete()
+            return Response(
+                {"detail": "Movie removed from favorites."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except UserFavorite.DoesNotExist:
+            return Response(
+                {"detail": "Movie not found in favorites."},
+                status=status.HTTP_404_NOT_FOUND,
+            )

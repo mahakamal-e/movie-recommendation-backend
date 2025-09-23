@@ -58,6 +58,7 @@ def fetch_and_save_trending_movies(max_retries=3, delay=2):
                     "description": movie_data.get("overview", ""),
                     "poster_path": movie_data.get("poster_path", ""),
                     "release_date": movie_data.get("release_date"),
+                    "genres": movie_data.get("genre_ids", []),
                 },
             )
             saved_movies.append(movie_obj)

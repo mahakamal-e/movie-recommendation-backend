@@ -6,3 +6,4 @@ redis
 django-redis
 drf-yasg
 requests
+django-ratelimit

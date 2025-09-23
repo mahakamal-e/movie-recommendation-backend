@@ -102,12 +102,38 @@ PostgreSQL is available at db:5432 in Docker. Redis caching is available at redi
 
 ### Authentication
 
+
 | Endpoint | Method | Description |
-|----------|--------|------------|
+|----------|--------|-------------|
 | `/api/auth/register/` | POST | Register a new user |
 | `/api/auth/token/` | POST | Obtain JWT token |
 | `/api/auth/token/refresh/` | POST | Refresh JWT token |
+| `/api/users/me/` | GET | Get current user profile |
+| `/api/me/change-password/` | POST | Change user password |
 
+### **Authentication Usage Examples**
+
+**Register a new user**
+```http
+POST /api/auth/register/
+Content-Type: application/json
+
+{
+  "username": "yourusername",
+  "email": "your@email.com",
+  "password": "yourpassword"
+}
+```
+**Obtain JWT token**
+```http
+POST /api/auth/token/
+Content-Type: application/json
+
+{
+  "username": "yourusername",
+  "password": "yourpassword"
+}
+```
 ### Movies
 
 | Endpoint | Method | Description |
@@ -117,6 +143,8 @@ PostgreSQL is available at db:5432 in Docker. Redis caching is available at redi
 | `/api/movies/search/` | GET | Search movies by title and/or genre |
 | `/api/movies/favorites/` | GET/POST | List/Add user’s favorite movies |
 | `/api/movies/favorites/remove/<movie_id>/` | DELETE | Remove a movie from favorites |
+
+
 
 ## Live Project & Demo
 - Live project: [https://your-live-project-link.com](https://your-live-project-link.com)

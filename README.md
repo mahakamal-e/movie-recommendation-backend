@@ -31,6 +31,19 @@ This backend powers a movie recommendation platform where users can:
 - Redis caching for trending and recommended movies
 - Dockerized setup for easy deployment
 
+### 🔄 Data Flow & TMDb Integration
+
+- Movie data is fetched from The Movie Database (TMDb) API
+
+- When users search, browse trending, or request recommendations:
+
+1. The API fetches movie details from TMDb.
+
+2. Results are stored in the local PostgreSQL database for persistence.
+
+3. Frequently requested data (e.g., trending movies) is cached in Redis for faster responses.
+
+This ensures that users always get fresh movie data with optimized performance.
 ---
 
 ## 📦 Requirements

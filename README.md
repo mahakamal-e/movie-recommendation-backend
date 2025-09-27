@@ -109,8 +109,18 @@ for interactive API docs.
 
 ## 🗄 Database & Redis
 PostgreSQL is available at db:5432 in Docker. Redis caching is available at redis:6379 for trending and recommended movies.
+## 📄 API Documentation
 
+The backend provides interactive and structured API documentation for developers:
 
+- **Swagger** UI (Interactive API Docs)
+http://localhost:8000/api/docs/
+
+Allows you to explore and try out API endpoints directly from the browser.
+
+ - **ReDoc** UI (Structured API Docs)
+http://localhost:8000/api/redoc/
+Provides a clean, organized view of all endpoints for easy reading and reference.
 ## API Endpoints
 
 ### Authentication

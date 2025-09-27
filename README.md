@@ -167,7 +167,15 @@ Content-Type: application/json
 | `/api/movies/favorites/` | GET/POST | List/Add user’s favorite movies |
 | `/api/movies/favorites/remove/<movie_id>/` | DELETE | Remove a movie from favorites |
 
+## 🛠 Admin Interface
 
+Django admin allows managing Movies, UserFavorites, and Users.
+
+- **URL:** /admin/  
+- **Models:**
+  - **Movie:** title, tmdb_id, release_date, created_at
+  - **UserFavorite:** user, movie, created_at
+  - **User:** id, username, email, is_staff, is_active, date_joined
 
 ## Live Project & Demo
 

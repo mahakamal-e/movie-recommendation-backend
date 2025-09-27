@@ -171,7 +171,7 @@ Content-Type: application/json
 
 ## Live Project & Demo
 
-- Demo video: [[https://your-demo-video-link.com](https://your-demo-video-link.com](https://youtu.be/jj1lhoAEIuQ))
+- Demo video: https://youtu.be/jj1lhoAEIuQ
 
 ## Testing
 (Optional) Run tests:
